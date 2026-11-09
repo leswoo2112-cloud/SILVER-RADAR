@@ -1,1 +1,443 @@
-.
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050d1d" />
+  <title>SBO SPEED GUN | 야구 구속 측정</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell" id="app">
+
+    <!-- 상단 로고 -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-top">
+          <strong>SBO</strong>
+          <span class="brand-baseball">⚾</span>
+        </div>
+        <div class="brand-bottom">SPEED GUN</div>
+      </div>
+
+      <button type="button"
+              class="icon-button settings-button"
+              id="settingsBtn"
+              aria-label="설정 열기">⚙</button>
+    </header>
+
+    <main class="main-content">
+
+      <!-- 1. 실시간 카메라 -->
+      <section class="view active" id="view-live">
+
+        <div class="camera-stage" id="cameraStage">
+          <div class="stadium-backdrop"></div>
+
+          <video id="liveVideo"
+                 class="camera-video"
+                 autoplay muted playsinline></video>
+
+          <canvas id="liveCanvas"
+                  class="tracking-canvas"></canvas>
+
+          <div class="view-topline">
+            <span class="live-badge" id="liveBadge">
+              <i></i> STANDBY
+            </span>
+            <span class="camera-fps" id="cameraFps">
+              FPS --
+            </span>
+          </div>
+
+          <div class="camera-guides">
+            <span class="corner tl"></span>
+            <span class="corner tr"></span>
+            <span class="corner bl"></span>
+            <span class="corner br"></span>
+            <span class="aim-crosshair"></span>
+          </div>
+
+          <div class="camera-instructions">
+            <p id="cameraStatus">카메라 대기 중</p>
+            <small id="cameraHint">
+              카메라를 켠 뒤 공을 터치하여 추적하세요
+            </small>
+          </div>
+        </div>
+
+        <!-- 구속 표시 -->
+        <div class="speed-panel">
+          <div class="panel-caption">
+            <span>구속</span>
+            <span class="measure-state" id="measureState">
+              측정 대기
+            </span>
+          </div>
+
+          <div class="speed-value">
+            <strong id="liveSpeed">0.0</strong>
+            <span>km/h</span>
+          </div>
+
+          <p class="measure-note" id="speedNote">
+            실제 측정 전 표시값 · 거리 보정 필요
+          </p>
+        </div>
+
+        <!-- 최고/평균/투구 수 -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">
+              🏆 최고 구속
+            </div>
+            <div class="stat-value">
+              <strong id="bestSpeed">0.0</strong>
+              <small>km/h</small>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-label">
+              ▥ 평균 구속
+            </div>
+            <div class="stat-value">
+              <strong id="avgSpeed">0.0</strong>
+              <small>km/h</small>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-label">
+              ⚾ 투구 수
+            </div>
+            <div class="stat-value">
+              <strong id="pitchCount">0</strong>
+              <small>회</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="live-actions">
+          <button type="button"
+                  class="primary-button"
+                  id="cameraToggleBtn">
+            📷 카메라 켜기
+          </button>
+
+          <button type="button"
+                  class="secondary-button"
+                  id="trackToggleBtn"
+                  disabled>
+            ◎ 공 추적 시작
+          </button>
+        </div>
+
+        <p class="fine-print">
+          안전한 위치에서 촬영하세요.
+          카메라 추정 구속은 전문 레이더 측정값과
+          다를 수 있습니다.
+        </p>
+      </section>
+
+      <!-- 2. 슬로모션 영상 분석 -->
+      <section class="view"
+               id="view-analysis"
+               hidden>
+
+        <div class="section-heading">
+          <h1>슬로모션 분석</h1>
+          <p>
+            투구 영상의 시작·끝 지점을 지정해
+            평균 구속을 계산합니다.
+          </p>
+        </div>
+
+        <label class="upload-button"
+               for="videoFileInput">
+          ＋ 투구 영상 불러오기
+        </label>
+
+        <input type="file"
+               id="videoFileInput"
+               accept="video/*"
+               hidden />
+
+        <div class="analysis-player">
+          <video id="analysisVideo"
+                 controls playsinline
+                 preload="metadata"></video>
+
+          <canvas id="analysisCanvas"
+                  class="analysis-canvas"></canvas>
+
+          <div class="analysis-empty"
+               id="analysisEmpty">
+            영상을 선택하면 여기에 표시됩니다.
+          </div>
+        </div>
+
+        <div class="analysis-toolbar">
+          <label for="playbackRate">재생 속도</label>
+
+          <select id="playbackRate">
+            <option value="0.25">0.25배</option>
+            <option value="0.5">0.5배</option>
+            <option value="1" selected>1배</option>
+          </select>
+
+          <span id="currentVideoTime">0.000초</span>
+        </div>
+
+        <div class="analysis-controls">
+          <button type="button"
+                  class="secondary-button"
+                  id="startFrameBtn"
+                  disabled>
+            ① 시작 시점 지정
+          </button>
+
+          <button type="button"
+                  class="secondary-button"
+                  id="endFrameBtn"
+                  disabled>
+            ② 끝 시점 지정
+          </button>
+        </div>
+
+        <div class="time-row">
+          <span>시작 <b id="startTimeLabel">미지정</b></span>
+          <span>끝 <b id="endTimeLabel">미지정</b></span>
+        </div>
+
+        <div class="analysis-result">
+          <span>평균 구속 추정</span>
+
+          <strong>
+            <span id="analysisSpeed">--.-</span>
+            <small>km/h</small>
+          </strong>
+
+          <p id="analysisStatus">
+            투구 영상과 측정 구간을 설정해 주세요.
+          </p>
+        </div>
+
+        <button type="button"
+                class="primary-button full-width"
+                id="saveAnalysisBtn"
+                disabled>
+          분석 결과 기록 저장
+        </button>
+
+        <p class="fine-print">
+          실제 공 이동 거리와 두 시점 사이의
+          시간을 사용합니다.
+          계산 결과는 구간 평균 구속입니다.
+        </p>
+      </section>
+
+      <!-- 3. 투구 기록 -->
+      <section class="view" id="view-records" hidden>
+
+        <div class="section-heading">
+          <h1>투구 기록</h1>
+          <p>기기에 저장된 구속 측정 결과</p>
+        </div>
+
+        <div class="record-summary">
+          <div>
+            <small>기록 수</small>
+            <strong id="recordsCount">0</strong>
+          </div>
+          <div>
+            <small>최고 구속</small>
+            <strong id="recordsBest">--.-</strong>
+          </div>
+          <div>
+            <small>평균 구속</small>
+            <strong id="recordsAverage">--.-</strong>
+          </div>
+        </div>
+
+        <div class="records-header">
+          <strong>최근 기록</strong>
+          <span>km/h</span>
+        </div>
+
+        <ol class="record-list" id="recordList">
+          <li class="empty-message">
+            저장된 기록이 없습니다.
+          </li>
+        </ol>
+
+        <div class="record-actions">
+          <button type="button"
+                  class="secondary-button"
+                  id="exportCsvBtn">
+            CSV 내보내기
+          </button>
+
+          <button type="button"
+                  class="danger-button"
+                  id="clearRecordsBtn">
+            전체 기록 삭제
+          </button>
+        </div>
+      </section>
+
+      <!-- 4. 분석 리포트 -->
+      <section class="view" id="view-report" hidden>
+
+        <div class="section-heading">
+          <h1>구속 리포트</h1>
+          <p>
+            기록을 바탕으로 투구별 구속 변화를
+            확인합니다.
+          </p>
+        </div>
+
+        <div class="report-cards">
+          <div>
+            <small>최고 구속</small>
+            <strong id="reportBest">--.-</strong>
+            <span>km/h</span>
+          </div>
+
+          <div>
+            <small>평균 구속</small>
+            <strong id="reportAverage">--.-</strong>
+            <span>km/h</span>
+          </div>
+
+          <div>
+            <small>측정 횟수</small>
+            <strong id="reportCount">0</strong>
+            <span>회</span>
+          </div>
+        </div>
+
+        <div class="chart-section">
+          <h2>투구별 구속</h2>
+
+          <div class="speed-chart" id="reportChart">
+            <p class="empty-message">
+              구속 기록이 쌓이면
+              그래프가 표시됩니다.
+            </p>
+          </div>
+        </div>
+
+        <button type="button"
+                class="primary-button full-width"
+                id="printReportBtn">
+          리포트 인쇄 / PDF 저장
+        </button>
+      </section>
+
+    </main>
+
+    <!-- 하단 4개 메뉴 -->
+    <nav class="bottom-nav" aria-label="기본 메뉴">
+      <button type="button"
+              class="nav-item selected"
+              data-view="live"
+              aria-current="page">
+        <span class="nav-icon">▣</span>
+        <span>카메라</span>
+      </button>
+
+      <button type="button"
+              class="nav-item"
+              data-view="analysis">
+        <span class="nav-icon">▷</span>
+        <span>분석</span>
+      </button>
+
+      <button type="button"
+              class="nav-item"
+              data-view="records">
+        <span class="nav-icon">▥</span>
+        <span>기록</span>
+      </button>
+
+      <button type="button"
+              class="nav-item"
+              data-view="report">
+        <span class="nav-icon">▤</span>
+        <span>리포트</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- 설정 창 -->
+  <dialog class="settings-dialog" id="settingsDialog">
+    <form method="dialog" id="settingsForm">
+
+      <div class="dialog-header">
+        <h2 id="settingsTitle">SBO 측정 설정</h2>
+        <button type="submit"
+                class="close-button"
+                aria-label="설정 닫기">✕</button>
+      </div>
+
+      <label for="flightDistance">
+        공의 실제 이동 거리 (m)
+      </label>
+
+      <input type="number"
+             id="flightDistance"
+             min="0.5"
+             max="100"
+             step="0.01"
+             value="16.5"
+             inputmode="decimal" />
+
+      <small>
+        예시값 16.5m.
+        실제 릴리스 지점부터 측정 종료 지점까지의
+        거리를 입력하세요.
+      </small>
+
+      <label for="cameraDirection">
+        사용 카메라
+      </label>
+
+      <select id="cameraDirection">
+        <option value="environment">후면 카메라</option>
+        <option value="user">전면 카메라</option>
+      </select>
+
+      <label for="ballMode">공 추적 방식</label>
+
+      <select id="ballMode">
+        <option value="auto">
+          자동 탐색 + 터치 보정
+        </option>
+        <option value="tap">
+          터치로 공 지정
+        </option>
+      </select>
+
+      <label class="checkbox-row">
+        <input id="voiceReadout" type="checkbox" />
+        측정 구속 음성 안내
+      </label>
+
+      <button type="submit"
+              class="primary-button full-width"
+              id="saveSettingsBtn">
+        설정 저장
+      </button>
+    </form>
+  </dialog>
+
+  <div class="toast"
+       id="toast"
+       role="status"
+       aria-live="polite"></div>
+</body>
+</html>
