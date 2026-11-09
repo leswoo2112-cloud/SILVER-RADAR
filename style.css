@@ -1,1 +1,1474 @@
-.
+
+/* ================================================
+   SBO SPEED GUN
+   모바일 야구 스피드건 디자인
+   ================================================ */
+
+:root {
+  color-scheme: dark;
+  --bg: #040b1b;
+  --surface: #071329;
+  --surface-2: #0b1932;
+  --ink: #f2f7ff;
+  --muted: #a7b8d8;
+  --blue: #20a8ff;
+  --blue-light: #80d5ff;
+  --blue-deep: #0664f5;
+  --outline: rgba(84,155,247,.46);
+  --nav-h: 76px;
+  --shadow-blue:
+    0 0 8px rgba(33,149,255,.65),
+    0 0 24px rgba(0,96,255,.22);
+
+  font-family:
+    -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Malgun Gothic",
+    "Noto Sans KR", Arial, sans-serif;
+}
+
+/* 기본 초기화 */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 290px;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+  filter: grayscale(.4);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.upload-button:focus-visible {
+  outline: 2px solid #99dfff;
+  outline-offset: 3px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ================================================
+   전체 앱 배경
+   ================================================ */
+
+.app-shell {
+  width: 100%;
+  max-width: 560px;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 480px;
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      ellipse 95% 40% at 50% 22%,
+      rgba(17,61,116,.23),
+      transparent 80%
+    ),
+    linear-gradient(
+      180deg,
+      #030917 0%,
+      #061125 46%,
+      #030819 100%
+    );
+}
+
+.app-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .13;
+  pointer-events: none;
+
+  background-image: url("stadium-bg.jpg");
+  background-position: center 28%;
+  background-size: cover;
+  filter: grayscale(.25);
+}
+
+/* ================================================
+   SBO 로고
+   ================================================ */
+
+.app-header {
+  z-index: 5;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-content: center;
+
+  min-height: 112px;
+  position: relative;
+
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 12px)
+    18px 10px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(1,7,19,.97),
+    rgba(3,11,27,.72) 78%,
+    transparent
+  );
+}
+
+.brand {
+  width: fit-content;
+  text-align: center;
+  line-height: .9;
+  filter: drop-shadow(0 3px 7px #000);
+}
+
+.brand-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.brand-top strong {
+  font-family:
+    Impact, "Arial Black",
+    "Helvetica Neue", sans-serif;
+
+  font-size: clamp(57px, 16vw, 89px);
+  line-height: .9;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -4px;
+
+  transform: skew(-7deg);
+
+  background: linear-gradient(
+    180deg,
+    #fff 10%,
+    #e2eaf7 32%,
+    #8496b7 73%,
+    #f5f8ff 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke:
+    .5px rgba(255,255,255,.45);
+}
+
+.brand-baseball {
+  font-size: clamp(38px, 10vw, 56px);
+  filter: drop-shadow(0 0 7px #c1d9ff);
+}
+
+.brand-bottom {
+  margin-top: 4px;
+  padding-left: 3px;
+
+  font-size: clamp(18px, 5.1vw, 28px);
+  font-style: italic;
+  font-weight: 950;
+  letter-spacing: .12em;
+  white-space: nowrap;
+
+  color: #d7e2fb;
+
+  text-shadow:
+    0 2px 2px #020716,
+    0 0 15px rgba(148,184,255,.45);
+}
+
+/* 설정 아이콘 */
+
+.icon-button {
+  border: 1px solid rgba(126,177,255,.63);
+  color: #e2edff;
+
+  background: linear-gradient(
+    145deg,
+    rgba(16,37,76,.65),
+    rgba(3,10,25,.8)
+  );
+
+  box-shadow:
+    inset 0 0 10px rgba(80,128,213,.18),
+    0 0 9px rgba(34,91,191,.2);
+}
+
+.settings-button {
+  position: absolute;
+  right: 14px;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+  border-radius: 12px;
+  font-size: 26px;
+}
+
+/* ================================================
+   화면 스크롤
+   ================================================ */
+
+.main-content {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: thin;
+  scrollbar-color: #214879 transparent;
+
+  padding: 0 10px 16px;
+}
+
+.view {
+  min-width: 0;
+  padding-bottom: 10px;
+  animation: fade-in .2s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================================
+   실시간 카메라 / 야구장 배경
+   ================================================ */
+
+.camera-stage {
+  width: 100%;
+  min-height: 260px;
+  height: clamp(285px, 89vw, 475px);
+  max-height: 52dvh;
+
+  position: relative;
+  overflow: hidden;
+
+  border: 1px solid rgba(115,175,255,.42);
+  border-radius: 17px;
+
+  background: #091729;
+
+  box-shadow:
+    inset 0 0 24px #000,
+    0 0 15px rgba(0,77,192,.13);
+}
+
+.stadium-backdrop {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(1,5,15,.15),
+      transparent 45%,
+      rgba(3,8,20,.35)
+    ),
+    url("stadium-bg.jpg")
+      center center / cover no-repeat;
+
+  filter: saturate(.92) contrast(1.05);
+}
+
+.camera-video,
+.tracking-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.camera-video {
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .25s ease;
+  background: transparent;
+}
+
+.camera-stage.is-streaming .camera-video {
+  opacity: 1;
+}
+
+.tracking-canvas {
+  z-index: 2;
+  touch-action: manipulation;
+}
+
+/* 카메라 LIVE 표시 */
+
+.view-topline {
+  z-index: 4;
+  position: absolute;
+
+  top: 12px;
+  left: 13px;
+  right: 13px;
+
+  display: flex;
+  justify-content: space-between;
+  gap: 9px;
+  align-items: center;
+
+  pointer-events: none;
+}
+
+.live-badge,
+.camera-fps {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 5px 10px;
+  border-radius: 6px;
+
+  background: rgba(0,7,19,.75);
+  border: 1px solid rgba(120,168,233,.36);
+
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .045em;
+  text-shadow: 0 0 8px #000;
+}
+
+.live-badge i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8296b6;
+}
+
+.live-badge.is-live {
+  border-color: rgba(255,75,98,.7);
+  color: #fff;
+}
+
+.live-badge.is-live i {
+  background: #ff3356;
+  box-shadow: 0 0 8px #ff244d;
+}
+
+.camera-fps {
+  color: #afd7ff;
+}
+
+/* ================================================
+   카메라 조준선
+   ================================================ */
+
+.camera-guides {
+  position: absolute;
+  inset: 10% 13% 14%;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.camera-stage.is-streaming .camera-guides {
+  opacity: .92;
+}
+
+.corner {
+  width: 38px;
+  height: 38px;
+  position: absolute;
+
+  border: solid rgba(187,224,255,.94);
+  border-width: 0;
+
+  filter: drop-shadow(0 0 3px #127ff8);
+}
+
+.corner.tl {
+  top: 0;
+  left: 0;
+  border-top-width: 3px;
+  border-left-width: 3px;
+}
+
+.corner.tr {
+  top: 0;
+  right: 0;
+  border-top-width: 3px;
+  border-right-width: 3px;
+}
+
+.corner.bl {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 3px;
+  border-left-width: 3px;
+}
+
+.corner.br {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 3px;
+  border-right-width: 3px;
+}
+
+.aim-crosshair {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+
+  width: 58px;
+  height: 58px;
+
+  border: 1px solid rgba(180,216,255,.64);
+  border-radius: 50%;
+
+  transform: translate(-50%,-50%);
+
+  box-shadow:
+    0 0 0 29px rgba(90,155,230,.045);
+}
+
+.aim-crosshair::before,
+.aim-crosshair::after {
+  content: "";
+  position: absolute;
+  background: rgba(180,216,255,.63);
+}
+
+.aim-crosshair::before {
+  width: 1px;
+  height: 96px;
+  left: 50%;
+  top: -20px;
+}
+
+.aim-crosshair::after {
+  height: 1px;
+  width: 96px;
+  top: 50%;
+  left: -20px;
+}
+
+/* 카메라 안내 문구 */
+
+.camera-instructions {
+  position: absolute;
+  z-index: 4;
+
+  left: 8px;
+  right: 8px;
+  bottom: 9px;
+
+  text-align: center;
+  color: #edf5ff;
+
+  text-shadow:
+    0 1px 5px #000,
+    0 2px 9px #000;
+
+  pointer-events: none;
+}
+
+.camera-instructions p {
+  font-size: 13px;
+  margin: 0 0 4px;
+  font-weight: 800;
+}
+
+.camera-instructions small {
+  display: inline-block;
+  padding: 3px 8px;
+
+  font-size: 11px;
+  color: #d4e4ff;
+  background: rgba(1,8,24,.48);
+  border-radius: 5px;
+}
+
+/* ================================================
+   대형 디지털 구속 표시
+   ================================================ */
+
+.speed-panel {
+  position: relative;
+  margin-top: 10px;
+
+  padding: 12px 14px 13px;
+  min-height: 142px;
+  overflow: hidden;
+
+  border: 1px solid #2388f5;
+  border-radius: 13px 25px 13px 25px;
+
+  background:
+    repeating-linear-gradient(
+      130deg,
+      transparent 0 4px,
+      rgba(128,198,255,.015) 4px 5px
+    ),
+    linear-gradient(
+      115deg,
+      rgba(4,14,35,.96),
+      rgba(2,8,22,.98)
+    );
+
+  box-shadow:
+    inset 0 0 0 2px #08152b,
+    inset 0 0 24px rgba(0,97,224,.19),
+    var(--shadow-blue);
+}
+
+.speed-panel::before,
+.speed-panel::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #47c2ff,
+    transparent
+  );
+
+  opacity: .8;
+}
+
+.speed-panel::before {
+  left: 12%;
+  right: 35%;
+  top: 0;
+}
+
+.speed-panel::after {
+  left: 42%;
+  right: 8%;
+  bottom: 0;
+}
+
+.panel-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+
+  font-weight: 800;
+  font-size: 23px;
+}
+
+.measure-state {
+  font-size: 11px;
+  color: #7dc9ff;
+
+  padding: 4px 8px;
+  border: 1px solid rgba(33,133,255,.55);
+  border-radius: 5px;
+
+  background: rgba(8,40,83,.6);
+}
+
+.speed-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 9px;
+
+  white-space: nowrap;
+  line-height: 1;
+  padding: 3px 0 2px;
+}
+
+.speed-value strong {
+  font-family:
+    "DS-Digital", "Digital-7",
+    "Arial Narrow", Impact,
+    "Helvetica Neue", sans-serif;
+
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -.055em;
+
+  font-size: clamp(80px, 22vw, 128px);
+  font-variant-numeric: tabular-nums lining-nums;
+
+  color: #f6faff;
+
+  text-shadow:
+    0 0 6px rgba(240,252,255,.6),
+    0 0 20px rgba(42,141,255,.35);
+}
+
+.speed-value > span {
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -.04em;
+
+  font-size: clamp(20px, 6vw, 34px);
+  color: #51a7ff;
+
+  text-shadow: 0 0 9px rgba(0,111,255,.7);
+}
+
+.measure-note {
+  margin: 0;
+  color: #99b2d9;
+  font-size: 10px;
+  text-align: center;
+}
+
+/* ================================================
+   최고 구속 / 평균 구속 / 투구 수
+   ================================================ */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.stat-card,
+.report-cards > div {
+  min-width: 0;
+  padding: 10px 7px;
+  text-align: center;
+
+  border: 1px solid rgba(48,139,255,.66);
+  border-radius: 10px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(9,24,48,.96),
+    rgba(1,8,24,.96)
+  );
+
+  box-shadow:
+    inset 0 0 12px rgba(15,103,215,.13),
+    0 0 5px rgba(0,109,255,.15);
+}
+
+.stat-label {
+  color: #bad1f5;
+  font-size: clamp(11px,3vw,14px);
+  white-space: nowrap;
+  font-weight: 650;
+}
+
+.stat-value {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 3px;
+
+  padding-top: 8px;
+  white-space: nowrap;
+}
+
+.stat-value strong {
+  font-size: clamp(20px,6.5vw,30px);
+  font-style: italic;
+  font-weight: 850;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-value small {
+  font-size: 10px;
+  color: #55b5ff;
+  white-space: nowrap;
+}
+
+/* ================================================
+   측정 버튼
+   ================================================ */
+
+.live-actions,
+.analysis-controls,
+.record-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button,
+.upload-button {
+  min-height: 48px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.primary-button,
+.upload-button {
+  color: white;
+  border: 1px solid #4dbbff;
+
+  background: linear-gradient(
+    180deg,
+    #187cec,
+    #07368f
+  );
+
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.32),
+    0 0 12px rgba(20,126,255,.32);
+}
+
+.primary-button:active,
+.secondary-button:active,
+.upload-button:active {
+  transform: translateY(1px);
+}
+
+.secondary-button {
+  color: #d6e7ff;
+  background: linear-gradient(#112a51,#07172f);
+  border: 1px solid #4075b4;
+}
+
+.danger-button {
+  color: #ffc8cf;
+  background: #28111d;
+  border: 1px solid #a4495b;
+}
+
+.full-width {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.fine-print {
+  margin: 11px 4px 0;
+  color: #8faad0;
+  font-size: 11px;
+  line-height: 1.65;
+  text-align: center;
+}
+
+/* ================================================
+   하단 네비게이션
+   ================================================ */
+
+.bottom-nav {
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  flex: 0 0 auto;
+
+  min-height: var(--nav-h);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  background: linear-gradient(
+    180deg,
+    #0b1730,
+    #020817 90%
+  );
+
+  border-top: 1px solid #4e81c6;
+
+  box-shadow:
+    0 -3px 16px rgba(13,96,212,.34),
+    inset 0 2px 10px rgba(36,106,203,.12);
+}
+
+.nav-item {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+
+  min-width: 0;
+  border: 0;
+  border-right: 1px solid rgba(113,151,208,.14);
+
+  background: transparent;
+  color: #849bc1;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.nav-item:last-child {
+  border-right: 0;
+}
+
+.nav-icon {
+  font-family: Arial, sans-serif;
+  font-size: 27px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.nav-item.selected {
+  color: #9be1ff;
+  text-shadow: 0 0 8px #0a8aff;
+
+  background: linear-gradient(
+    180deg,
+    rgba(0,110,255,.17),
+    rgba(2,43,125,.34)
+  );
+}
+
+.nav-item.selected::after {
+  content: "";
+  height: 2px;
+  position: absolute;
+
+  bottom: 0;
+  left: 8%;
+  right: 8%;
+
+  background: #47ccff;
+  box-shadow: 0 0 10px #078dff;
+}
+
+/* ================================================
+   분석 / 기록 / 리포트 화면
+   ================================================ */
+
+#view-analysis,
+#view-records,
+#view-report {
+  padding: 4px 3px 25px;
+}
+
+.section-heading {
+  padding: 8px 3px 14px;
+}
+
+.section-heading h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  letter-spacing: -.025em;
+}
+
+.section-heading p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.upload-button {
+  width: 100%;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+/* 슬로모션 영상 */
+
+.analysis-player {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/10;
+  max-height: 420px;
+
+  overflow: hidden;
+  border-radius: 13px;
+  border: 1px solid #3675bc;
+  background: #020918;
+
+  box-shadow: var(--shadow-blue);
+}
+
+#analysisVideo,
+.analysis-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#analysisVideo {
+  object-fit: contain;
+}
+
+.analysis-canvas {
+  pointer-events: none;
+}
+
+.analysis-empty {
+  position: absolute;
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  text-align: center;
+  padding: 16px;
+  font-size: 12px;
+  color: #9fb6d9;
+  pointer-events: none;
+}
+
+/* 영상 분석 도구 */
+
+.analysis-toolbar,
+.time-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+
+  margin-top: 12px;
+  color: #bed0ec;
+  font-size: 12px;
+}
+
+.analysis-toolbar select {
+  min-width: 95px;
+  padding: 9px;
+
+  color: #ecf6ff;
+  background: #0b1d3b;
+  border: 1px solid #376eac;
+  border-radius: 7px;
+}
+
+.time-row {
+  margin-top: 10px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  background: rgba(21,45,82,.47);
+}
+
+.time-row b {
+  color: white;
+}
+
+/* 분석 구속 결과 */
+
+.analysis-result {
+  margin-top: 14px;
+  padding: 18px 14px;
+  text-align: center;
+
+  background: linear-gradient(
+    145deg,
+    #091d43,
+    #030b20
+  );
+
+  border: 1px solid #2e90ef;
+  border-radius: 12px;
+  box-shadow: var(--shadow-blue);
+}
+
+.analysis-result > span {
+  display: block;
+  color: #b0d5ff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.analysis-result > strong {
+  display: block;
+  font-size: 47px;
+  margin-top: 7px;
+  font-style: italic;
+  font-variant-numeric: tabular-nums;
+}
+
+.analysis-result strong small {
+  font-size: 19px;
+  color: #49b4ff;
+}
+
+.analysis-result p {
+  margin: 6px 0 0;
+  color: #afc5e3;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* 투구 기록 요약 */
+
+.record-summary,
+.report-cards {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 7px;
+}
+
+.record-summary > div {
+  min-width: 0;
+  padding: 14px 6px;
+
+  border: 1px solid #315f99;
+  background: #0b1a35;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.record-summary small,
+.report-cards small {
+  display: block;
+  color: #a7c3e8;
+  font-size: 11px;
+}
+
+.record-summary strong,
+.report-cards strong {
+  display: block;
+  margin-top: 7px;
+  font-size: clamp(19px,6vw,28px);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 기록 리스트 */
+
+.records-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 20px;
+  padding: 12px 3px;
+
+  border-bottom: 1px solid #416ca7;
+}
+
+.records-header span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.record-list {
+  margin: 0;
+  padding: 0 0 0 24px;
+}
+
+.record-list > li {
+  padding: 12px 10px 12px 3px;
+  border-bottom: 1px solid rgba(119,157,214,.2);
+  font-size: 13px;
+}
+
+.empty-message {
+  color: #99afd0;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.record-list > .empty-message {
+  list-style: none;
+  padding: 30px 6px;
+}
+
+/* 리포트 그래프 */
+
+.report-cards > div {
+  padding: 16px 6px;
+}
+
+.report-cards > div > span {
+  font-size: 10px;
+  color: var(--blue-light);
+}
+
+.chart-section {
+  margin-top: 18px;
+  padding: 14px 11px 16px;
+
+  border: 1px solid #2a5b99;
+  border-radius: 11px;
+
+  background: rgba(5,15,35,.86);
+}
+
+.chart-section h2 {
+  margin: 2px 0 15px;
+  font-size: 16px;
+}
+
+.speed-chart {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+
+  min-height: 200px;
+  overflow-x: auto;
+
+  padding: 16px 10px 10px;
+  border-radius: 7px;
+
+  background: repeating-linear-gradient(
+    to top,
+    rgba(100,142,205,.14) 0 1px,
+    transparent 1px 40px
+  );
+}
+
+.speed-chart > .empty-message {
+  align-self: center;
+  width: 100%;
+}
+
+/* ================================================
+   설정 팝업
+   ================================================ */
+
+.settings-dialog {
+  width: min(92vw,440px);
+  max-height: min(82dvh,680px);
+  overflow-y: auto;
+
+  padding: 0;
+  color: var(--ink);
+
+  border: 1px solid #469ff5;
+  border-radius: 16px;
+
+  background: linear-gradient(
+    155deg,
+    #102449,
+    #050d20
+  );
+
+  box-shadow:
+    0 0 0 1px #11254a,
+    0 12px 42px #000,
+    0 0 30px rgba(0,107,255,.3);
+}
+
+.settings-dialog::backdrop {
+  background: rgba(0,4,14,.83);
+  backdrop-filter: blur(5px);
+}
+
+.settings-dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 18px;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.close-button {
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid #426e9f;
+  border-radius: 8px;
+
+  color: white;
+  background: #0a1935;
+}
+
+.settings-dialog label {
+  margin-top: 5px;
+  color: #d9e9ff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.settings-dialog input[type="number"],
+.settings-dialog select {
+  width: 100%;
+  min-height: 43px;
+  padding: 10px;
+
+  color: #f5faff;
+  border: 1px solid #477cb4;
+  border-radius: 8px;
+  background: #06152e;
+}
+
+.settings-dialog small {
+  color: #adc4e2;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.settings-dialog .checkbox-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 8px;
+}
+
+.settings-dialog .checkbox-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: #248df7;
+}
+
+/* 알림 메시지 */
+
+.toast {
+  position: fixed;
+  z-index: 100;
+  left: 50%;
+
+  bottom: calc(
+    var(--nav-h) +
+    env(safe-area-inset-bottom, 0px) +
+    18px
+  );
+
+  transform:
+    translateX(-50%)
+    translateY(10px);
+
+  width: max-content;
+  max-width: 88vw;
+  padding: 10px 14px;
+
+  border: 1px solid #479bf0;
+  border-radius: 9px;
+
+  background: rgba(7,25,53,.94);
+  color: #e7f4ff;
+
+  box-shadow: 0 0 20px rgba(9,101,245,.3);
+  font-size: 12px;
+  text-align: center;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity .2s,
+    transform .2s;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ================================================
+   작은 스마트폰 대응
+   ================================================ */
+
+@media (max-width: 360px) {
+  .app-header {
+    min-height: 99px;
+  }
+
+  .settings-button {
+    width: 36px;
+    height: 36px;
+    font-size: 23px;
+  }
+
+  .main-content {
+    padding-inline: 7px;
+  }
+
+  .camera-stage {
+    min-height: 240px;
+  }
+
+  .speed-panel {
+    min-height: 126px;
+    padding: 10px;
+  }
+
+  .speed-value strong {
+    font-size: clamp(64px,21vw,80px);
+  }
+
+  .panel-caption {
+    font-size: 20px;
+  }
+
+  .stat-card {
+    padding-inline: 3px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .stat-value strong {
+    font-size: 19px;
+  }
+
+  .nav-icon {
+    font-size: 23px;
+  }
+}
+
+/* 넓은 화면 대응 */
+
+@media (min-width: 700px) {
+  body {
+    background: radial-gradient(
+      circle at 50% 40%,
+      #132a4c,
+      #010610 67%
+    );
+  }
+
+  .app-shell {
+    margin: 0 auto;
+    border-inline:
+      1px solid rgba(87,147,228,.35);
+
+    box-shadow:
+      0 0 35px rgba(5,26,72,.65);
+  }
+}
+
+/* 가로 모드 */
+
+@media (max-height: 650px)
+       and (orientation: landscape) {
+
+  .app-header {
+    min-height: 74px;
+    padding-top: 6px;
+  }
+
+  .brand-top strong {
+    font-size: 44px;
+  }
+
+  .brand-baseball {
+    font-size: 29px;
+  }
+
+  .brand-bottom {
+    font-size: 15px;
+  }
+
+  .camera-stage {
+    height: 260px;
+    max-height: none;
+  }
+
+  .bottom-nav {
+    --nav-h: 60px;
+  }
+}
+
+/* 움직임 감소 설정 */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ================================================
+   리포트 인쇄 / PDF 저장
+   ================================================ */
+
+@media print {
+  body,
+  .app-shell {
+    background: white !important;
+    color: #111 !important;
+
+    height: auto !important;
+    overflow: visible !important;
+    max-width: none;
+  }
+
+  .app-header,
+  .bottom-nav,
+  #view-live,
+  #view-analysis,
+  #view-records,
+  .settings-dialog,
+  .primary-button,
+  .fine-print {
+    display: none !important;
+  }
+
+  .main-content {
+    overflow: visible !important;
+  }
+
+  #view-report {
+    display: block !important;
+    color: #111 !important;
+  }
+
+  .report-cards > div,
+  .chart-section {
+    color: #111;
+    background: #fff;
+    border-color: #888;
+    box-shadow: none;
+  }
+
+  .report-cards small,
+  .report-cards span,
+  .section-heading p {
+    color: #444 !important;
+  }
+}
